@@ -42,6 +42,6 @@ Also you can execute this bin without config for phpunit
 
 `bin/phpunit-hot-runner`
 
-composer: `"hot/phpunit-runner": "dev-master"` ![home](https://packagist.org/packages/hot/phpunit-runner)
+composer: `"hot/phpunit-runner": "dev-master"` http://packagist.org/packages/hot/phpunit-runner
 
 
