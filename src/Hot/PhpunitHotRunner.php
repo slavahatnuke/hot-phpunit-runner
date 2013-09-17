@@ -51,6 +51,7 @@ class PhpunitHotRunner
             $runner->watch($bin, $request);
         } else {
             $config = isset($request['config']) ? $request['config'] : null;
+            $config = file_exists($config) ? $config : null;
             $runner = new self($config);
             $runner->run();
         }
