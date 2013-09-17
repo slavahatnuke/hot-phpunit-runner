@@ -17,7 +17,7 @@ PHPUnit HotRunner has been started
 
 PHPUnit 3.7.21 by Sebastian Bergmann.
 
-Configuration read from /Users/slava/project/ebutik/app/phpunit.xml
+Configuration read from /Users/slava/project/xxx/app/phpunit.xml
 
 ....
 
