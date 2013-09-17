@@ -1,0 +1,17 @@
+{
+    "name": "hot/phpunit-runner",
+    "type": "library",
+    "description": "The lib allows to watch phpunit tests",
+    "keywords": ["test", "ci"],
+    "homepage": "https://github.com/slavahatnuke/hot-phpunit-runner",
+    "license": "MIT",
+    "require": {
+        "php": ">=5.3.2"
+    },
+    "autoload": {
+        "psr-0": {
+            "Hot": "src/"
+        }
+    },
+    "bin": ["bin/phpunit-hot-runner"]
+}
