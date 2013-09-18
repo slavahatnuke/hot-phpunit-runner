@@ -67,7 +67,7 @@ class PhpunitHotRunner
 
     public function watch($bin, $request = [])
     {
-        $period = isset($request['period']) ? $request['period'] : null;
+        $period = isset($request['period']) ? $request['period'] : 2;
 
         if ($request['config']) {
             $bin .= ' --config=' . $request['config'];
