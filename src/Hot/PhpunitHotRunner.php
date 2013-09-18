@@ -86,12 +86,18 @@ class PhpunitHotRunner
     public function run()
     {
         $this->loadSession();
+
+        $prev_changes = array_keys($this->session['changes']);
+
         $this->session['changes'] = [];
 
         $this->result = true;
         chdir($this->base_dir);
 
-        foreach ($this->getChanges() as $file) {
+        $changes = $this->getChanges();
+        $changes = array_unique(array_merge($prev_changes, $changes));
+
+        foreach ($changes as $file) {
             if ($this->isPhp($file) && file_exists($file)) {
                 $this->runFile($file);
             }
