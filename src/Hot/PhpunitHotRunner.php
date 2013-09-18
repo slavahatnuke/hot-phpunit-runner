@@ -12,8 +12,6 @@ class PhpunitHotRunner
 
     protected $tests = [];
 
-    protected $postfixes = ['Test', 'Tests', 'TestCase'];
-
     public function __construct($phpunit_config_file = null)
     {
         $this->phpunit_config_file = $phpunit_config_file;
@@ -63,7 +61,7 @@ class PhpunitHotRunner
         $period = isset($request['period']) ? $request['period'] : null;
 
         if ($request['config']) {
-            $bin.= ' --config=' . $request['config'];
+            $bin .= ' --config=' . $request['config'];
         }
 
         echo "\n";
@@ -81,48 +79,47 @@ class PhpunitHotRunner
         $this->result = true;
         chdir($this->base_dir);
 
-        $changes = $this->getChanges();
+        $files = [];
 
-        $tests = [];
-        $classes = [];
-
-        foreach ($changes as $file) {
-
+        foreach ($this->getChanges() as $file) {
             if (preg_match('/\.php$/', $file) && file_exists($file)) {
-
-                if (preg_match('/test/i', $file)) {
-                    $tests[] = $file;
-                } else {
-                    $content = file_get_contents($file);
-
-                    if (preg_match('/class\s+\w+/i', $content)) {
-                        $classes[] = $file;
-                    }
-
-                }
+                $files[] = $file;
             }
         }
 
-        $all_files = array_merge($tests, $classes);
-
-        if ($this->isFresh($all_files)) {
-            $this->runTests($tests);
-            $this->runTestsForClasses($classes);
+        if ($this->isFresh($files)) {
+            $this->runFiles($files);
         }
-
 
         if (count($this->tests)) {
 
             echo "\n";
             echo "\n";
             echo $this->result ? '[OK]' : '[FAIL]';
+            echo "\n";
 
             if (!$this->result) {
                 exit(1);
             }
 
-            echo "\n";
 
+        }
+
+    }
+
+    protected function runFiles($files)
+    {
+        foreach ($files as $file) {
+            $this->runFile($file);
+        }
+    }
+
+    protected function runFile($file)
+    {
+        if ($this->isTest($file)) {
+            $this->runTest($file);
+        } else if ($this->isClass($file)) {
+            $this->runTestsForClass($file);
         }
 
     }
@@ -155,13 +152,11 @@ class PhpunitHotRunner
      */
     protected function runTest($test)
     {
-        $real_test_path = realpath($test);
-
-        if (isset($this->tests[$real_test_path])) {
+        if (isset($this->tests[$test])) {
             return 0;
         }
 
-        $this->tests[$real_test_path] = 1;
+        $this->tests[$test] = md5(file_get_contents($test));
 
         $cmd = "phpunit " . $test;
 
@@ -178,6 +173,10 @@ class PhpunitHotRunner
         $return = null;
         system($cmd, $return);
 
+        if ($this->result && $return) {
+            $this->result = false;
+        }
+
         return $return;
     }
 
@@ -187,13 +186,7 @@ class PhpunitHotRunner
     protected function runTests($tests)
     {
         foreach ($tests as $file) {
-
-            $return = $this->runTest($file);
-
-            if ($this->result && $return) {
-                $this->result = false;
-            }
-
+            $this->runTest($file);
         }
     }
 
@@ -202,68 +195,46 @@ class PhpunitHotRunner
      */
     protected function runTestsForClasses($class_files)
     {
-        $tests = [];
 
         foreach ($class_files as $class_file) {
-
-            $content = file_get_contents($class_file);
-
-            $ns = null;
-
-            $a = [];
-            if (preg_match('/namespace\s+([^\s]+);/i', $content, $a)) {
-                $ns = $a[1];
-            }
-
-            $class_name = null;
-
-            if (preg_match('/class\s+([^\s]+)/i', $content, $a)) {
-                $class_name = $a[1];
-            }
-
-            if ($class_name && $test_file = $this->findTestForClass($class_name, $ns)) {
-                $tests[] = $test_file;
-            }
-
+            $this->runTestsForClass($class_file, $tests);
         }
-
-        $this->runTests($tests);
     }
 
-    protected function findTestForClass($class_name, $ns = null)
+    protected function findTestsForClass($class_name, $ns = null)
     {
+        $result = [];
 
-        foreach ($this->postfixes as $postfix) {
+        $files = [];
+        exec("find . -iname '$class_name*'", $files);
 
-            $test_class_name = $class_name . $postfix;
-            $test_class_file = $test_class_name . '.php';
+        $class = $ns ? $ns . '\\' . $class_name : $class_name;
+        $a_class = explode('\\', $class);
 
-            $files = [];
-            exec("find . -iname '$test_class_file'", $files);
+        foreach ($files as $file) {
 
-            foreach ($files as $file) {
+            if ($this->isTest($file)) {
 
-                $find_class = $ns ? $ns . '\\' . $class_name : $class_name;
-                $content = file_get_contents($file);
+                if (strpos($file, $class_name) !== false) {
 
-                //1
-                if (strpos($content, $find_class) !== false) {
-                    return $file;
+                    $n = 0;
+
+                    foreach ($a_class as $name) {
+                        if (strpos($file, $name) !== false) {
+                            $n++;
+                        }
+                    }
+
+                    if ($n > count($a_class)/2) {
+                        $result[] = $file;
+                    }
+
                 }
-
-                //2
-                $simple_file_path = preg_replace('/([^\w]+)test.*?([^\w]+)/i', '$1$2', $file); // remove /Test/ /Tests/
-                $simple_file_path = preg_replace('/\/+/', '/', $simple_file_path); // remove ///
-
-                $find_class_by_path = str_replace('\\', '/', $find_class);
-
-                if (strpos($simple_file_path, $find_class_by_path) !== false) {
-                    return $file;
-                }
-
             }
 
         }
+
+        return array_unique($result);
     }
 
     /**
@@ -271,6 +242,7 @@ class PhpunitHotRunner
      */
     protected function isFresh($files)
     {
+        return true;
         $state_file = sys_get_temp_dir() . '/phpunit_test_changes_' . md5($this->base_dir . 'x' . (string)$this->phpunit_config_file);
 
         $previous_hash = '';
@@ -289,5 +261,56 @@ class PhpunitHotRunner
         file_put_contents($state_file, $hash);
 
         return $previous_hash !== $hash;
+    }
+
+    /**
+     * @param $file
+     * @return int
+     */
+    protected function isTest($file)
+    {
+        return preg_match('/test/i', $file);
+    }
+
+    /**
+     * @param $file
+     * @param $classes
+     * @return array
+     */
+    protected function isClass($file)
+    {
+        $content = file_get_contents($file);
+        return preg_match('/class\s+\w+/i', $content);
+    }
+
+    /**
+     * @param $class_file
+     * @param $tests
+     * @return array
+     */
+    protected function runTestsForClass($class_file)
+    {
+        $tests = [];
+
+        $content = file_get_contents($class_file);
+
+        $ns = null;
+
+        $a = [];
+        if (preg_match('/namespace\s+([^\s]+);/i', $content, $a)) {
+            $ns = $a[1];
+        }
+
+        $class_name = null;
+
+        if (preg_match('/class\s+([^\s]+)/i', $content, $a)) {
+            $class_name = $a[1];
+        }
+
+        if ($class_name && $test_files = $this->findTestsForClass($class_name, $ns)) {
+            $tests = array_merge($tests, $test_files);
+        }
+
+        $this->runTests($tests);
     }
 }
