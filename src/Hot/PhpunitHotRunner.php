@@ -12,10 +12,21 @@ class PhpunitHotRunner
 
     protected $tests = [];
 
+    protected $session_file;
+
+    protected $session = [
+        'changes' => [],
+        'files' => [],
+        'fails' => []
+    ];
+
     public function __construct($phpunit_config_file = null)
     {
         $this->phpunit_config_file = $phpunit_config_file;
         $this->base_dir = getcwd();
+        $this->session_file = sys_get_temp_dir() . '/phpunit_hot_runner_' . md5($this->base_dir . 'x' . (string)$this->phpunit_config_file);
+
+        echo $this->session_file;
     }
 
     static public function handle()
@@ -76,35 +87,36 @@ class PhpunitHotRunner
 
     public function run()
     {
+        $this->loadSession();
+        $this->session['changes'] = [];
+
         $this->result = true;
         chdir($this->base_dir);
 
-        $files = [];
-
         foreach ($this->getChanges() as $file) {
-            if (preg_match('/\.php$/', $file) && file_exists($file)) {
-                $files[] = $file;
+            if ($this->isPhp($file) && file_exists($file)) {
+                $this->runFile($file);
             }
         }
 
-        if ($this->isFresh($files)) {
-            $this->runFiles($files);
+        $this->saveSession();
+
+        $this->report();
+    }
+
+    protected function loadSession()
+    {
+
+        if (!file_exists($this->session_file)) {
+            $this->saveSession();
         }
 
-        if (count($this->tests)) {
+        $this->session = array_merge($this->session, json_decode(file_get_contents($this->session_file), 1));
+    }
 
-            echo "\n";
-            echo "\n";
-            echo $this->result ? '[OK]' : '[FAIL]';
-            echo "\n";
-
-            if (!$this->result) {
-                exit(1);
-            }
-
-
-        }
-
+    protected function saveSession()
+    {
+        file_put_contents($this->session_file, json_encode($this->session));
     }
 
     protected function runFiles($files)
@@ -116,6 +128,21 @@ class PhpunitHotRunner
 
     protected function runFile($file)
     {
+
+        $file = realpath($file);
+
+        $file_hash = md5(file_get_contents($file));
+
+        $this->session['changes'][$file] = $file_hash;
+
+        $prev_file_hash = isset($this->session['files'][$file]) ? $this->session['files'][$file] : null;
+
+        if ($file_hash == $prev_file_hash) {
+            return;
+        }
+
+        $this->session['files'][$file] = $file_hash;
+
         if ($this->isTest($file)) {
             $this->runTest($file);
         } else if ($this->isClass($file)) {
@@ -148,20 +175,23 @@ class PhpunitHotRunner
     }
 
     /**
-     * @param $test
+     * @param $test_file
      */
-    protected function runTest($test)
+    protected function runTest($test_file)
     {
-        if (isset($this->tests[$test])) {
+        $test_file = realpath($test_file);
+
+        if (isset($this->tests[$test_file])) {
             return 0;
         }
 
-        $this->tests[$test] = md5(file_get_contents($test));
+        $test_file_hash = md5(file_get_contents($test_file));
+        $this->tests[$test_file] = $test_file_hash;
 
-        $cmd = "phpunit " . $test;
+        $cmd = "phpunit " . $test_file;
 
         if ($this->phpunit_config_file) {
-            $cmd = "phpunit -c {$this->phpunit_config_file} " . $test;
+            $cmd = "phpunit -c {$this->phpunit_config_file} " . $test_file;
         }
 
         echo "\n";
@@ -172,6 +202,12 @@ class PhpunitHotRunner
 
         $return = null;
         system($cmd, $return);
+
+        if ($return) {
+            $this->session['fails'][$test_file] = $test_file_hash;
+        } else if (isset($this->session['fails'][$test_file])) {
+            unset($this->session['fails'][$test_file]);
+        }
 
         if ($this->result && $return) {
             $this->result = false;
@@ -185,20 +221,15 @@ class PhpunitHotRunner
      */
     protected function runTests($tests)
     {
+        $result = 0;
+
         foreach ($tests as $file) {
-            $this->runTest($file);
+            if ($this->runTest($file)) {
+                $result = 1;
+            }
         }
-    }
 
-    /**
-     * @param $class_files
-     */
-    protected function runTestsForClasses($class_files)
-    {
-
-        foreach ($class_files as $class_file) {
-            $this->runTestsForClass($class_file, $tests);
-        }
+        return $result;
     }
 
     protected function findTestsForClass($class_name, $ns = null)
@@ -225,7 +256,7 @@ class PhpunitHotRunner
                         }
                     }
 
-                    if ($n > count($a_class)/2) {
+                    if ($n > count($a_class) / 2) {
                         $result[] = $file;
                     }
 
@@ -235,32 +266,6 @@ class PhpunitHotRunner
         }
 
         return array_unique($result);
-    }
-
-    /**
-     * @param $files
-     */
-    protected function isFresh($files)
-    {
-        return true;
-        $state_file = sys_get_temp_dir() . '/phpunit_test_changes_' . md5($this->base_dir . 'x' . (string)$this->phpunit_config_file);
-
-        $previous_hash = '';
-
-        if (file_exists($state_file)) {
-            $previous_hash = file_get_contents($state_file);
-        }
-
-        // calc hash
-        $hash = md5($state_file);
-
-        foreach ($files as $file) {
-            $hash = md5($hash . $file . file_get_contents($file));
-        }
-
-        file_put_contents($state_file, $hash);
-
-        return $previous_hash !== $hash;
     }
 
     /**
@@ -311,6 +316,48 @@ class PhpunitHotRunner
             $tests = array_merge($tests, $test_files);
         }
 
-        $this->runTests($tests);
+        return $this->runTests($tests);
+    }
+
+    protected function report()
+    {
+        if (count($this->tests)) {
+
+            echo "\n";
+            echo "\n";
+            echo $this->result ? '[OK]' : '[FAIL]';
+            echo "\n";
+
+            if (count($this->session['fails'])) {
+
+                echo "\n";
+                echo "[NOTICE] You have fail(s):";
+
+                foreach (array_keys($this->session['fails']) as $name) {
+                    echo "\n";
+                    echo $name;
+                }
+
+                echo "\n";
+
+
+            }
+
+
+            if (!$this->result) {
+                exit(1);
+            }
+
+
+        }
+    }
+
+    /**
+     * @param $file
+     * @return int
+     */
+    protected function isPhp($file)
+    {
+        return preg_match('/\.php$/', $file);
     }
 }
