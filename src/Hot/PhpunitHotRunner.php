@@ -22,7 +22,7 @@ class PhpunitHotRunner
         'fails' => []
     ];
 
-    protected $test_similarity = 51;
+    protected $test_similarity = 80;
 
     static public function handle()
     {
