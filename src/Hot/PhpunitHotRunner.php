@@ -130,7 +130,7 @@ class PhpunitHotRunner
         echo "\n";
 
         while (true) {
-            system($bin);
+            passthru($bin);
             sleep($period);
         }
     }
@@ -257,7 +257,7 @@ class PhpunitHotRunner
         echo "\n";
 
         $return = null;
-        system($cmd, $return);
+        passthru($cmd, $return);
 
         if ($return) {
             $this->session['fails'][$test_file] = $test_file_hash;
