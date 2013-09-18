@@ -48,4 +48,6 @@ Also you can execute this bin without config for phpunit
 
 composer: `"hot/phpunit-runner": "dev-master"` http://packagist.org/packages/hot/phpunit-runner
 
+you can setup similarity of test `bin/phpunit-hot-runner --test-similarity=80`
+this option used in search algorithm
 

@@ -22,6 +22,8 @@ class PhpunitHotRunner
         'fails' => []
     ];
 
+    protected $test_similarity = 51;
+
     static public function handle()
     {
 
@@ -61,6 +63,10 @@ class PhpunitHotRunner
 
             $phpunit_bin = isset($request['phpunit-bin']) ? $request['phpunit-bin'] : null;
             $runner->setPhpunitBin($phpunit_bin);
+
+            $test_similarity = isset($request['test-similarity']) ? $request['test-similarity'] : null;
+            $runner->setTestSimilarity($test_similarity);
+
             $runner->run();
         }
 
@@ -82,6 +88,19 @@ class PhpunitHotRunner
         }
     }
 
+    /**
+     * @param int $test_similarity
+     */
+    public function setTestSimilarity($test_similarity)
+    {
+        $test_similarity = (int)$test_similarity;
+
+        if ($test_similarity) {
+            $this->test_similarity = $test_similarity;
+        }
+    }
+
+
     public  function clean()
     {
         if (file_exists($this->session_file)) {
@@ -100,6 +119,10 @@ class PhpunitHotRunner
 
         if (isset($request['phpunit-bin'])) {
             $bin .= ' --phpunit-bin=' . $request['phpunit-bin'];
+        }
+
+        if (isset($request['test-similarity'])) {
+            $bin .= ' --test-similarity=' . $request['test-similarity'];
         }
 
         echo "\n";
@@ -289,7 +312,7 @@ class PhpunitHotRunner
                         }
                     }
 
-                    if ($n > count($a_class) / 2) {
+                    if ($n / count($a_class) >= ($this->test_similarity / 100)) {
                         $result[] = $file;
                     }
 
