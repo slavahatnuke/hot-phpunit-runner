@@ -241,7 +241,7 @@ class PhpunitHotRunner
         $result = [];
 
         $files = [];
-        exec("find . -iname '$class_name*'", $files);
+        exec("find . -type f -iname '$class_name*'", $files);
 
         $class = $ns ? $ns . '\\' . $class_name : $class_name;
         $a_class = explode('\\', $class);
