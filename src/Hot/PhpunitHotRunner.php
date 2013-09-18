@@ -8,6 +8,8 @@ class PhpunitHotRunner
 
     protected $phpunit_config_file;
 
+    protected $phpunit_config_options;
+
     protected $result;
 
     protected $tests = [];
@@ -40,7 +42,7 @@ class PhpunitHotRunner
         foreach ($options as $option) {
 
             if (preg_match('/--(.+?)=(.+)/', $option, $a)) {
-                $request[$a[1]] = $a[2];
+                $request[$a[1]] = trim($a[2], ' "\'');
             }
 
             if (preg_match('/--(.+)/', $option, $a)) {
@@ -66,6 +68,9 @@ class PhpunitHotRunner
 
             $test_similarity = isset($request['test-similarity']) ? $request['test-similarity'] : null;
             $runner->setTestSimilarity($test_similarity);
+
+            $phpunit_config_options = isset($request['options']) ? $request['options'] : null;
+            $runner->setPhpunitConfigOptions($phpunit_config_options);
 
             $runner->run();
         }
@@ -100,6 +105,18 @@ class PhpunitHotRunner
         }
     }
 
+    /**
+     * @param mixed $phpunit_config_options
+     */
+    public function setPhpunitConfigOptions($phpunit_config_options)
+    {
+        if ($phpunit_config_options) {
+            $this->phpunit_config_options = $phpunit_config_options;
+        }
+
+    }
+
+
 
     public  function clean()
     {
@@ -123,6 +140,10 @@ class PhpunitHotRunner
 
         if (isset($request['test-similarity'])) {
             $bin .= ' --test-similarity=' . $request['test-similarity'];
+        }
+
+        if (isset($request['options'])) {
+            $bin .= ' --options="' . $request['options'] . '"';
         }
 
         echo "\n";
@@ -244,11 +265,17 @@ class PhpunitHotRunner
         $test_file_hash = md5(file_get_contents($test_file));
         $this->tests[$test_file] = $test_file_hash;
 
-        $cmd = "{$this->phpunit_bin} " . $test_file;
+        $cmd = $this->phpunit_bin;
+        
+        if ($this->phpunit_config_options) {
+            $cmd.= ' ' . $this->phpunit_config_options;
+        }
 
         if ($this->phpunit_config_file) {
-            $cmd = "{$this->phpunit_bin} -c {$this->phpunit_config_file} " . $test_file;
+            $cmd .= " -c {$this->phpunit_config_file}";
         }
+
+        $cmd .= ' ' . $test_file;
 
         echo "\n";
         echo "\n";

@@ -45,6 +45,7 @@ FYI, runner will not run tests next time. ( result is cached for watcher )
 #### Options
 ```
  --config=app/phpunit.xml # custom phpunit config file
+ --options="-c app/ --testdox" # custom phpunit options (alternative for `--config`)
  --watch # watcher mode
  --period=2 # sec. watcher period
  --clean # this option remove cached result and re-test full 
@@ -67,3 +68,4 @@ FYI, runner will not run tests next time. ( result is cached for watcher )
 5. `bin/phpunit-hot-runner --config=app/phpunit.xml --watch --period=1` # with phpunit config hot watcher with `--period=1`
 6. `bin/phpunit-hot-runner --config=app/phpunit.xml --watch &` # with phpunit config file and with `&` (background process)
 7. `bin/phpunit-hot-runner --watch --test-similarity=50` # default watcher with `--test-similarity=50` # watcher can not find my tests. I need to reduce the similarity.
+8. `bin/phpunit-hot-runner --options="-c app/ --testdox" --watch` # watcher with `--options="-c app/ --testdox"` # with custom phpunit options
