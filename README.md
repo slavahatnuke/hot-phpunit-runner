@@ -38,6 +38,8 @@ Runner will run tests for changed entities one time and will not observe changes
 
 FYI, runner will not run tests next time. ( result is cached for watcher )
 
+if you need remove cache and retest all changes run `bin/phpunit-hot-runner --clean`
+
 You can setup `bin/phpunit-hot-runner --phpunit-bin=bin/phpunit`
 
 Also you can execute this bin without config for phpunit

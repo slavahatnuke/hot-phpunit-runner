@@ -48,7 +48,10 @@ class PhpunitHotRunner
         }
 
 
-        if (isset($request['watch'])) {
+        if (isset($request['clean'])) {
+            $runner = new self();
+            $runner->clean();
+        } else if (isset($request['watch'])) {
             $runner = new self();
             $runner->watch($bin, $request);
         } else {
@@ -67,7 +70,7 @@ class PhpunitHotRunner
     {
         $this->phpunit_config_file = $phpunit_config_file;
         $this->base_dir = getcwd();
-        $this->session_file = sys_get_temp_dir() . '/phpunit_hot_runner_' . md5($this->base_dir . 'x' . (string)$this->phpunit_config_file);
+        $this->session_file = sys_get_temp_dir() . '/phpunit_hot_runner_' . md5($this->base_dir);
     }
     /**
      * @param string $phpunit_bin
@@ -76,6 +79,13 @@ class PhpunitHotRunner
     {
         if ($phpunit_bin) {
             $this->phpunit_bin = $phpunit_bin;
+        }
+    }
+
+    public  function clean()
+    {
+        if (file_exists($this->session_file)) {
+            unlink($this->session_file);
         }
     }
 
@@ -383,4 +393,5 @@ class PhpunitHotRunner
     {
         return preg_match('/\.php$/', $file);
     }
+
 }
