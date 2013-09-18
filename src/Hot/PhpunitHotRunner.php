@@ -56,8 +56,8 @@ class PhpunitHotRunner
             $config = file_exists($config) ? $config : null;
             $runner = new self($config);
 
-            $phpunit = isset($request['phpunit']) ? $request['phpunit'] : null;
-            $runner->setPhpunitBin($phpunit);
+            $phpunit_bin = isset($request['phpunit-bin']) ? $request['phpunit-bin'] : null;
+            $runner->setPhpunitBin($phpunit_bin);
             $runner->run();
         }
 
@@ -74,7 +74,9 @@ class PhpunitHotRunner
      */
     public function setPhpunitBin($phpunit_bin)
     {
-        $this->phpunit_bin = $phpunit_bin;
+        if ($phpunit_bin) {
+            $this->phpunit_bin = $phpunit_bin;
+        }
     }
 
 
@@ -82,12 +84,12 @@ class PhpunitHotRunner
     {
         $period = isset($request['period']) ? $request['period'] : 2;
 
-        if ($request['config']) {
+        if (isset($request['config'])) {
             $bin .= ' --config=' . $request['config'];
         }
 
-        if ($request['phpunit']) {
-            $bin .= ' --phpunit=' . $request['phpunit'];
+        if (isset($request['phpunit-bin'])) {
+            $bin .= ' --phpunit-bin=' . $request['phpunit-bin'];
         }
 
         echo "\n";
