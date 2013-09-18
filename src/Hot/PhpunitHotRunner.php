@@ -14,18 +14,13 @@ class PhpunitHotRunner
 
     protected $session_file;
 
+    protected $phpunit_bin = 'phpunit';
+
     protected $session = [
         'changes' => [],
         'files' => [],
         'fails' => []
     ];
-
-    public function __construct($phpunit_config_file = null)
-    {
-        $this->phpunit_config_file = $phpunit_config_file;
-        $this->base_dir = getcwd();
-        $this->session_file = sys_get_temp_dir() . '/phpunit_hot_runner_' . md5($this->base_dir . 'x' . (string)$this->phpunit_config_file);
-    }
 
     static public function handle()
     {
@@ -60,10 +55,28 @@ class PhpunitHotRunner
             $config = isset($request['config']) ? $request['config'] : null;
             $config = file_exists($config) ? $config : null;
             $runner = new self($config);
+
+            $phpunit = isset($request['phpunit']) ? $request['phpunit'] : null;
+            $runner->setPhpunitBin($phpunit);
             $runner->run();
         }
 
     }
+
+    public function __construct($phpunit_config_file = null)
+    {
+        $this->phpunit_config_file = $phpunit_config_file;
+        $this->base_dir = getcwd();
+        $this->session_file = sys_get_temp_dir() . '/phpunit_hot_runner_' . md5($this->base_dir . 'x' . (string)$this->phpunit_config_file);
+    }
+    /**
+     * @param string $phpunit_bin
+     */
+    public function setPhpunitBin($phpunit_bin)
+    {
+        $this->phpunit_bin = $phpunit_bin;
+    }
+
 
     public function watch($bin, $request = [])
     {
@@ -71,6 +84,10 @@ class PhpunitHotRunner
 
         if ($request['config']) {
             $bin .= ' --config=' . $request['config'];
+        }
+
+        if ($request['phpunit']) {
+            $bin .= ' --phpunit=' . $request['phpunit'];
         }
 
         echo "\n";
@@ -192,10 +209,10 @@ class PhpunitHotRunner
         $test_file_hash = md5(file_get_contents($test_file));
         $this->tests[$test_file] = $test_file_hash;
 
-        $cmd = "phpunit " . $test_file;
+        $cmd = "{$this->phpunit_bin} " . $test_file;
 
         if ($this->phpunit_config_file) {
-            $cmd = "phpunit -c {$this->phpunit_config_file} " . $test_file;
+            $cmd = "{$this->phpunit_bin} -c {$this->phpunit_config_file} " . $test_file;
         }
 
         echo "\n";
