@@ -25,8 +25,6 @@ class PhpunitHotRunner
         $this->phpunit_config_file = $phpunit_config_file;
         $this->base_dir = getcwd();
         $this->session_file = sys_get_temp_dir() . '/phpunit_hot_runner_' . md5($this->base_dir . 'x' . (string)$this->phpunit_config_file);
-
-        echo $this->session_file;
     }
 
     static public function handle()
