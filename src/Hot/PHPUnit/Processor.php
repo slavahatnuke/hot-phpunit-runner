@@ -1,7 +1,7 @@
 <?php
 
 
-namespace Hot\Phpunit;
+namespace Hot\PHPUnit;
 
 
 class Processor implements ProcessorInterface {

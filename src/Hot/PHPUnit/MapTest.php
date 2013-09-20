@@ -1,7 +1,7 @@
 <?php
 
 
-namespace Hot\Phpunit;
+namespace Hot\PHPUnit;
 
 
 class MapTest extends \PHPUnit_Framework_TestCase {

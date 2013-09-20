@@ -1,6 +1,6 @@
 <?php
 
-namespace Hot\Phpunit;
+namespace Hot\PHPUnit;
 
 class Runner
 {
@@ -46,7 +46,7 @@ class Runner
     }
 
     /**
-     * @param \Hot\Phpunit\ProcessorInterface $processor
+     * @param \Hot\PHPUnit\ProcessorInterface $processor
      */
     public function setProcessor(ProcessorInterface $processor)
     {
@@ -54,7 +54,7 @@ class Runner
     }
 
     /**
-     * @return \Hot\Phpunit\ProcessorInterface
+     * @return \Hot\PHPUnit\ProcessorInterface
      */
     public function getProcessor()
     {

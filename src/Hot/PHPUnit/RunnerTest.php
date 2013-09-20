@@ -1,5 +1,5 @@
 <?php
-namespace Hot\Phpunit;
+namespace Hot\PHPUnit;
 
 use Mockery as M;
 
@@ -20,7 +20,7 @@ class RunnerTest extends \PHPUnit_Framework_TestCase {
     {
         $runner = new Runner();
 
-        $processor = M::mock('Hot\Phpunit\ProcessorInterface');
+        $processor = M::mock('Hot\PHPUnit\ProcessorInterface');
         $runner->setProcessor($processor);
 
         $this->assertSame($processor, $runner->getProcessor());

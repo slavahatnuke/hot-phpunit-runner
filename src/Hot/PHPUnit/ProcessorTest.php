@@ -1,7 +1,7 @@
 <?php
 
 
-namespace Hot\Phpunit;
+namespace Hot\PHPUnit;
 
 
 class ProcessorTest extends \PHPUnit_Framework_TestCase {

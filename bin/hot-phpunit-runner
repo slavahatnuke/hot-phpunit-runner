@@ -2,4 +2,4 @@
 <?php
 
 require_once __DIR__ . '/../vendor/autoload.php';
-Hot\Phpunit\Runner::handle();
+Hot\PHPUnit\Runner::handle();

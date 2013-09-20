@@ -1,5 +1,5 @@
 <?php
-namespace Hot\Phpunit;
+namespace Hot\PHPUnit;
 
 interface ProcessorInterface
 {

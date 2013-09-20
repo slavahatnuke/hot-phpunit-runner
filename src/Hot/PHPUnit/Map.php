@@ -1,5 +1,5 @@
 <?php
-namespace Hot\Phpunit;
+namespace Hot\PHPUnit;
 
 class Map implements \IteratorAggregate, \Countable
 {
