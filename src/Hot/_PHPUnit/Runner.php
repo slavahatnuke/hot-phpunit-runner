@@ -10,14 +10,15 @@ class Runner
 
     protected $phpunit_config_options;
 
+    protected $phpunit_bin = 'phpunit';
+
+    protected $phpunit_coverage;
+
     protected $result;
 
     protected $tests = [];
 
     protected $session_file;
-
-    protected $phpunit_bin = 'phpunit';
-    protected $phpunit_coverage;
 
     /**
      * @var ProcessorInterface
@@ -34,27 +35,8 @@ class Runner
 
     static public function handle()
     {
-        $request = new Request($_SERVER['argv'], $_SERVER['SCRIPT_NAME']);
-
-        if ($request->has('clean')) {
-            $runner = new self();
-            $runner->clean();
-        } else if ($request->has('watch')) {
-            $runner = new self();
-            $runner->watch($request);
-        } else {
-
-            $runner = new self();
-
-            $runner->setPhpunitConfigFile($request->get('config'));
-            $runner->setPhpunitBin($request->get('phpunit-bin'));
-            $runner->setTestSimilarity($request->get('test-similarity'));
-            $runner->setPhpunitConfigOptions($request->get('options'));
-            $runner->setPhpunitCoverage($request->get('coverage'));
-
-            $runner->run();
-        }
-
+        $runner = new self();
+        $runner->execute(new Request($_SERVER['argv'], $_SERVER['SCRIPT_NAME']));
     }
 
     public function __construct()
@@ -76,21 +58,19 @@ class Runner
      */
     public function getProcessor()
     {
-        if(!$this->processor)
-        {
+        if (!$this->processor) {
             $this->processor = new Processor();
         }
         return $this->processor;
     }
 
-    
+
     /**
      * @param mixed $phpunit_config
      */
     public function setPhpunitConfigFile($phpunit_config)
     {
-        if($phpunit_config && file_exists($phpunit_config))
-        {
+        if ($phpunit_config) {
             $this->phpunit_config_file = $phpunit_config;
         }
     }
@@ -100,8 +80,7 @@ class Runner
      */
     public function setPhpunitCoverage($phpunit_coverage)
     {
-        if($phpunit_coverage)
-        {
+        if ($phpunit_coverage) {
             $this->phpunit_coverage = $phpunit_coverage;
         }
     }
@@ -140,8 +119,7 @@ class Runner
     }
 
 
-
-    public  function clean()
+    public function clean()
     {
         if (file_exists($this->session_file)) {
             unlink($this->session_file);
@@ -153,8 +131,6 @@ class Runner
     {
         $bin = $request->getBin();
 
-        $period = $request->has('period') ? $request->get('period') : 2;
-
         $options = ['config', 'phpunit-bin', 'test-similarity', 'options', 'coverage'];
 
         foreach ($options as $option) {
@@ -164,8 +140,10 @@ class Runner
         }
 
         echo "\n";
-        echo "PHPUnit HotRunner has been started";
+        echo "Hot\\PHPUnit\\Runner has been started";
         echo "\n";
+
+        $period = $request->has('period') ? $request->get('period') : 2;
 
         while (true) {
             $this->getProcessor()->run($bin);
@@ -211,6 +189,28 @@ class Runner
     protected function saveSession()
     {
         file_put_contents($this->session_file, json_encode($this->session));
+    }
+
+    /**
+     * @param $request
+     * @param $runner
+     */
+    public function execute(Request $request)
+    {
+        if ($request->has('clean')) {
+            $this->clean();
+        } else if ($request->has('watch')) {
+            $this->watch($request);
+        } else {
+
+            $this->setPhpunitConfigFile($request->get('config'));
+            $this->setPhpunitBin($request->get('phpunit-bin'));
+            $this->setTestSimilarity($request->get('test-similarity'));
+            $this->setPhpunitConfigOptions($request->get('options'));
+            $this->setPhpunitCoverage($request->get('coverage'));
+
+            $this->run();
+        }
     }
 
     protected function runFiles($files)
@@ -283,13 +283,13 @@ class Runner
         $this->tests[$test_file] = $test_file_hash;
 
         $cmd = $this->phpunit_bin;
-        
+
         if ($this->phpunit_config_options) {
-            $cmd.= ' ' . $this->phpunit_config_options;
+            $cmd .= ' ' . $this->phpunit_config_options;
         }
 
         if ($this->phpunit_coverage) {
-            $cmd.= ' --coverage-clover ' . $this->phpunit_coverage;
+            $cmd .= ' --coverage-clover ' . $this->phpunit_coverage;
         }
 
         if ($this->phpunit_config_file) {
@@ -304,8 +304,7 @@ class Runner
         echo "\n";
         echo "\n";
 
-        $return = null;
-        passthru($cmd, $return);
+        $return = $this->getProcessor()->run($cmd);
 
         if ($return) {
             $this->session['fails'][$test_file] = $test_file_hash;
