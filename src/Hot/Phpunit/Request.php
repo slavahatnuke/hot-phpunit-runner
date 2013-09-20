@@ -6,11 +6,23 @@ namespace Hot\Phpunit;
 class Request extends Map
 {
 
-    public function __construct($options = array())
+    protected $bin;
+
+    public function __construct($options = array(), $bin = null)
     {
+        $this->bin = $bin;
         parent::__construct();
         $this->load($options);
     }
+
+    /**
+     * @return null
+     */
+    public function getBin()
+    {
+        return $this->bin;
+    }
+
 
     protected function trim($value)
     {

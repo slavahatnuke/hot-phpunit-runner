@@ -19,6 +19,11 @@ class Runner
     protected $phpunit_bin = 'phpunit';
     protected $phpunit_coverage;
 
+    /**
+     * @var ProcessorInterface
+     */
+    protected $processor;
+
     protected $session = [
         'changes' => [],
         'files' => [],
@@ -29,16 +34,14 @@ class Runner
 
     static public function handle()
     {
-        $bin = $_SERVER['SCRIPT_NAME'];
-
-        $request = new Request($_SERVER['argv']);
+        $request = new Request($_SERVER['argv'], $_SERVER['SCRIPT_NAME']);
 
         if ($request->has('clean')) {
             $runner = new self();
             $runner->clean();
         } else if ($request->has('watch')) {
             $runner = new self();
-            $runner->watch($bin, $request);
+            $runner->watch($request);
         } else {
 
             $runner = new self();
@@ -54,13 +57,33 @@ class Runner
 
     }
 
-    public function __construct($phpunit_config = null)
+    public function __construct()
     {
-        $this->phpunit_config_file = $phpunit_config;
         $this->base_dir = getcwd();
-        $this->session_file = sys_get_temp_dir() . '/phpunit_hot_runner_' . md5($this->base_dir);
+        $this->session_file = sys_get_temp_dir() . '/hot_phpunit_runner_' . md5($this->base_dir);
     }
 
+    /**
+     * @param \Hot\Phpunit\ProcessorInterface $processor
+     */
+    public function setProcessor(ProcessorInterface $processor)
+    {
+        $this->processor = $processor;
+    }
+
+    /**
+     * @return \Hot\Phpunit\ProcessorInterface
+     */
+    public function getProcessor()
+    {
+        if(!$this->processor)
+        {
+            $this->processor = new Processor();
+        }
+        return $this->processor;
+    }
+
+    
     /**
      * @param mixed $phpunit_config
      */
@@ -126,8 +149,10 @@ class Runner
     }
 
 
-    public function watch($bin, Request $request)
+    public function watch(Request $request)
     {
+        $bin = $request->getBin();
+
         $period = $request->has('period') ? $request->get('period') : 2;
 
         $options = ['config', 'phpunit-bin', 'test-similarity', 'options', 'coverage'];
@@ -143,7 +168,7 @@ class Runner
         echo "\n";
 
         while (true) {
-            passthru($bin);
+            $this->getProcessor()->run($bin);
             sleep($period);
         }
     }

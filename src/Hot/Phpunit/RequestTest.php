@@ -16,7 +16,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase {
     /**
      * @test
      */
-    public function should1()
+    public function shouldDefineValueWithTrue()
     {
         $request = new Request(['--name']);
         $this->assertTrue($request->get('name'));
@@ -25,7 +25,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase {
     /**
      * @test
      */
-    public function should2()
+    public function shouldParseValue()
     {
         $request = new Request(['--name=val']);
         $this->assertEquals('val', $request->get('name'));
@@ -34,10 +34,21 @@ class RequestTest extends \PHPUnit_Framework_TestCase {
     /**
      * @test
      */
-    public function should3()
+    public function shouldParseQuotedValue()
     {
         $request = new Request(['--name="val wally"']);
         $this->assertEquals('val wally', $request->get('name'));
+    }
+
+    /**
+     * @test
+     */
+    public function getBin()
+    {
+        $bin = 'bin/bin/bin';
+
+        $request = new Request([], $bin);
+        $this->assertSame($bin, $request->getBin());
     }
 
 
