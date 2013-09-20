@@ -74,10 +74,12 @@ FYI, runner will not run tests next time. ( result is cached for watcher )
 
 #### PhpStorm
 
-Highlight coverage in IDE
+Highlight coverage in PhpStorm
 
 plugin: [download](plugin/phpunit_codecoverage_display.jar)
+[wiki](https://github.com/oker1/phpunit_codecoverage_display/wiki)
+[home](http://plugins.jetbrains.com/plugin/6167?pr=phpStorm&showAllUpdates=true)
 
-https://github.com/oker1/phpunit_codecoverage_display/wiki
+![PhpStorm settings](doc/images/coverage_ide_settings.png)
 
-
+![PhpStorm highlight](doc/images/coverage_ide_highlight.png)
