@@ -99,6 +99,7 @@ class Runner
      */
     public function setPhpunitCoverage($phpunit_coverage)
     {
+        $phpunit_coverage = $phpunit_coverage === true ? 'coverage.xml' : $phpunit_coverage;
         if($phpunit_coverage)
         {
             $this->phpunit_coverage = $phpunit_coverage;
