@@ -433,7 +433,7 @@ class Runner
             if (count($this->session['fails'])) {
 
                 echo "\n";
-                echo "[NOTICE] You have fail(s):";
+                echo "[NOTICE] [FAIL] You have fail(s):";
 
                 foreach (array_keys($this->session['fails']) as $name) {
                     echo "\n";
