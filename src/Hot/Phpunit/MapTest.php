@@ -48,6 +48,7 @@ class MapTest extends \PHPUnit_Framework_TestCase {
      */
     public function setValue()
     {
+
         $map = new Map(['k' => 'v']);
 
         $this->assertEquals('v', $map->get('k'));

@@ -27,72 +27,49 @@ class Runner
 
     protected $test_similarity = 80;
 
-    static public function trim($value)
-    {
-        return trim($value, ' "\'');
-    }
-
     static public function handle()
     {
+        $bin = $_SERVER['SCRIPT_NAME'];
 
-        $options = $_SERVER['argv'];
+        $request = new Request($_SERVER['argv']);
 
-        if (empty($options)) {
-            return;
-        }
-
-        $bin = getcwd() . '/' . $options[0];
-
-        $request = [];
-
-        foreach ($options as $option) {
-
-            if (preg_match('/--(.+?)=(.+)/', $option, $a)) {
-                list($x, $key, $value) = $a;
-                $request[self::trim($key)] = self::trim($value);
-            }
-
-            if (preg_match('/--(.+)/', $option, $a)) {
-                list($x, $key) = $a;
-                $request[self::trim($key)] = true;
-            }
-
-        }
-
-
-        if (isset($request['clean'])) {
+        if ($request->has('clean')) {
             $runner = new self();
             $runner->clean();
-        } else if (isset($request['watch'])) {
+        } else if ($request->has('watch')) {
             $runner = new self();
             $runner->watch($bin, $request);
         } else {
-            $config = isset($request['config']) ? $request['config'] : null;
-            $config = file_exists($config) ? $config : null;
-            $runner = new self($config);
 
-            $phpunit_bin = isset($request['phpunit-bin']) ? $request['phpunit-bin'] : null;
-            $runner->setPhpunitBin($phpunit_bin);
+            $runner = new self();
 
-            $test_similarity = isset($request['test-similarity']) ? $request['test-similarity'] : null;
-            $runner->setTestSimilarity($test_similarity);
-
-            $phpunit_config_options = isset($request['options']) ? $request['options'] : null;
-            $runner->setPhpunitConfigOptions($phpunit_config_options);
-
-            $phpunit_coverage = isset($request['coverage']) ? $request['coverage'] : null;
-            $runner->setPhpunitCoverage($phpunit_coverage);
+            $runner->setPhpunitConfigFile($request->get('config'));
+            $runner->setPhpunitBin($request->get('phpunit-bin'));
+            $runner->setTestSimilarity($request->get('test-similarity'));
+            $runner->setPhpunitConfigOptions($request->get('options'));
+            $runner->setPhpunitCoverage($request->get('coverage'));
 
             $runner->run();
         }
 
     }
 
-    public function __construct($phpunit_config_file = null)
+    public function __construct($phpunit_config = null)
     {
-        $this->phpunit_config_file = $phpunit_config_file;
+        $this->phpunit_config_file = $phpunit_config;
         $this->base_dir = getcwd();
         $this->session_file = sys_get_temp_dir() . '/phpunit_hot_runner_' . md5($this->base_dir);
+    }
+
+    /**
+     * @param mixed $phpunit_config
+     */
+    public function setPhpunitConfigFile($phpunit_config)
+    {
+        if($phpunit_config && file_exists($phpunit_config))
+        {
+            $this->phpunit_config_file = $phpunit_config;
+        }
     }
 
     /**
@@ -137,7 +114,6 @@ class Runner
         if ($phpunit_config_options) {
             $this->phpunit_config_options = $phpunit_config_options;
         }
-
     }
 
 
@@ -150,15 +126,15 @@ class Runner
     }
 
 
-    public function watch($bin, $request = [])
+    public function watch($bin, Request $request)
     {
-        $period = isset($request['period']) ? $request['period'] : 2;
+        $period = $request->has('period') ? $request->get('period') : 2;
 
         $options = ['config', 'phpunit-bin', 'test-similarity', 'options', 'coverage'];
 
         foreach ($options as $option) {
-            if (isset($request[$option])) {
-                $bin .= " --{$option}=" . '"' . $request[$option] . '"';
+            if ($request->has($option)) {
+                $bin .= " --'{$option}'=" . '"' . $request->get($option) . '"';
             }
         }
 
