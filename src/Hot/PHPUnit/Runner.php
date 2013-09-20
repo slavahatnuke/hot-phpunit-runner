@@ -251,9 +251,9 @@ class Runner
     protected function getChanges()
     {
         $result = [];
-        $changes = [];
 
-        exec('git status -s', $changes);
+        $changes = $this->getProcessor()->execute('git status -s');
+        $changes = $changes ? $changes : [];
         array_walk($changes, 'trim');
 
         foreach ($changes as $file) {
@@ -304,19 +304,19 @@ class Runner
         echo "\n";
         echo "\n";
 
-        $return = $this->getProcessor()->run($cmd);
+        $ok_result = $this->getProcessor()->run($cmd);
 
-        if ($return) {
+        if (!$ok_result) {
             $this->session['fails'][$test_file] = $test_file_hash;
         } else if (isset($this->session['fails'][$test_file])) {
             unset($this->session['fails'][$test_file]);
         }
 
-        if ($this->result && $return) {
+        if ($this->result && !$ok_result) {
             $this->result = false;
         }
 
-        return $return;
+        return $ok_result;
     }
 
     /**
@@ -339,8 +339,8 @@ class Runner
     {
         $result = [];
 
-        $files = [];
-        exec("find . -type f -iname '$class_name*'", $files);
+        $files = $this->getProcessor()->execute("find . -type f -iname '$class_name*'");
+        $files = $files ? $files : [];
 
         $class = $ns ? $ns . '\\' . $class_name : $class_name;
         $a_class = explode('\\', $class);
