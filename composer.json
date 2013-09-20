@@ -16,5 +16,5 @@
     "require": {
       "mockery/mockery": "dev-master"
     },
-    "bin": ["bin/phpunit-hot-runner"]
+    "bin": ["bin/hot-phpunit-runner"]
 }
