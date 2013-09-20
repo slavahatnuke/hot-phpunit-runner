@@ -13,7 +13,7 @@
             "Hot": "src/"
         }
     },
-    "require-dev": {
+    "require": {
       "mockery/mockery": "dev-master"
     },
     "bin": ["bin/phpunit-hot-runner"]

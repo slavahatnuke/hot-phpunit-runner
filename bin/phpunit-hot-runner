@@ -1,5 +1,5 @@
 #!/usr/bin/env php
 <?php
 
-require_once __DIR__ . '/../src/Hot/PhpunitHotRunner.php';
-Hot\PhpunitHotRunner::handle();
+require_once __DIR__ . '/../vendor/autoload.php';
+Hot\Phpunit\Runner::handle();

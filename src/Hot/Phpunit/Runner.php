@@ -1,8 +1,8 @@
 <?php
 
-namespace Hot;
+namespace Hot\Phpunit;
 
-class PhpunitHotRunner
+class Runner
 {
     protected $base_dir;
 
