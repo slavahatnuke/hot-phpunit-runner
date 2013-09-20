@@ -31,7 +31,6 @@ OK (4 tests, 9 assertions)
 
 ```
 
-
 **[notice]** If you run `bin/hot-phpunit-runner` without any options then you
 run all tests (or test for entity) based on `git status` (one time).
 FYI, runner will not run tests next time. ( result is cached for watcher )
