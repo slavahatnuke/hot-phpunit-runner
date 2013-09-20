@@ -17,6 +17,7 @@ class PhpunitHotRunner
     protected $session_file;
 
     protected $phpunit_bin = 'phpunit';
+    protected $phpunit_coverage;
 
     protected $session = [
         'changes' => [],
@@ -25,6 +26,11 @@ class PhpunitHotRunner
     ];
 
     protected $test_similarity = 80;
+
+    static public function trim($value)
+    {
+        return trim($value, ' "\'');
+    }
 
     static public function handle()
     {
@@ -42,11 +48,12 @@ class PhpunitHotRunner
         foreach ($options as $option) {
 
             if (preg_match('/--(.+?)=(.+)/', $option, $a)) {
-                $request[$a[1]] = trim($a[2], ' "\'');
+                list($x, $key, $value) = $a;
+                $request[self::trim($key)] = self::trim($value);
             }
 
             if (preg_match('/--(.+)/', $option, $a)) {
-                $request[$a[1]] = true;
+                $request[self::trim($a[1])] = true;
             }
 
         }
@@ -72,6 +79,9 @@ class PhpunitHotRunner
             $phpunit_config_options = isset($request['options']) ? $request['options'] : null;
             $runner->setPhpunitConfigOptions($phpunit_config_options);
 
+            $phpunit_coverage = isset($request['coverage']) ? $request['coverage'] : null;
+            $runner->setPhpunitCoverage($phpunit_coverage);
+
             $runner->run();
         }
 
@@ -83,6 +93,19 @@ class PhpunitHotRunner
         $this->base_dir = getcwd();
         $this->session_file = sys_get_temp_dir() . '/phpunit_hot_runner_' . md5($this->base_dir);
     }
+
+    /**
+     * @param mixed $phpunit_coverage
+     */
+    public function setPhpunitCoverage($phpunit_coverage)
+    {
+        if($phpunit_coverage)
+        {
+            $this->phpunit_coverage = $phpunit_coverage;
+        }
+    }
+
+
     /**
      * @param string $phpunit_bin
      */
@@ -130,20 +153,12 @@ class PhpunitHotRunner
     {
         $period = isset($request['period']) ? $request['period'] : 2;
 
-        if (isset($request['config'])) {
-            $bin .= ' --config=' . $request['config'];
-        }
+        $options = ['config', 'phpunit-bin', 'test-similarity', 'options', 'coverage'];
 
-        if (isset($request['phpunit-bin'])) {
-            $bin .= ' --phpunit-bin=' . $request['phpunit-bin'];
-        }
-
-        if (isset($request['test-similarity'])) {
-            $bin .= ' --test-similarity=' . $request['test-similarity'];
-        }
-
-        if (isset($request['options'])) {
-            $bin .= ' --options="' . $request['options'] . '"';
+        foreach ($options as $option) {
+            if (isset($request[$option])) {
+                $bin .= " --{$option}=" . '"' . $request[$option] . '"';
+            }
         }
 
         echo "\n";
@@ -269,6 +284,10 @@ class PhpunitHotRunner
         
         if ($this->phpunit_config_options) {
             $cmd.= ' ' . $this->phpunit_config_options;
+        }
+
+        if ($this->phpunit_coverage) {
+            $cmd.= ' --coverage-clover ' . $this->phpunit_coverage;
         }
 
         if ($this->phpunit_config_file) {
