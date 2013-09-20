@@ -83,3 +83,7 @@ plugin: [download](plugin/phpunit_codecoverage_display.jar)
 ![PhpStorm settings](doc/images/coverage_ide_settings.png)
 
 ![PhpStorm highlight](doc/images/coverage_ide_highlight.png)
+
+or
+
+![PhpStorm highlight](doc/images/coverage_ide_highlight2.png)
