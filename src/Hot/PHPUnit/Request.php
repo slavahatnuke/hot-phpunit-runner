@@ -23,6 +23,18 @@ class Request extends Map
         return $this->bin;
     }
 
+    public function getArray($names)
+    {
+        $result = [];
+
+        foreach ($names as $name) {
+            if ($this->has($name)) {
+                $result[$name] = $this->get($name);
+            }
+        }
+
+        return $result;
+    }
 
     protected function trim($value)
     {
@@ -37,14 +49,24 @@ class Request extends Map
             if (preg_match('/--(.+?)=(.+)/', $option, $a)) {
                 list($x, $key, $value) = $a;
                 $this->set($this->trim($key), $this->trim($value));
-            }
-
-            if (preg_match('/--(.+)/', $option, $a)) {
+            } else if (preg_match('/--(.+)/', $option, $a)) {
                 list($x, $key) = $a;
                 $this->set($this->trim($key), true);
             }
 
         }
+
+    }
+
+    public function generateBin($options)
+    {
+        $bin = $this->getBin();
+
+        foreach ($options as $option => $value) {
+            $bin .= " --'{$option}'=" . "'" . $value . "'";
+        }
+
+        return $bin;
 
     }
 

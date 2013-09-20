@@ -121,23 +121,15 @@ class Runner
 
     public function clean()
     {
-        if (file_exists($this->session_file)) {
-            unlink($this->session_file);
-        }
+        $this->removeSession();
     }
 
 
     public function watch(Request $request)
     {
-        $bin = $request->getBin();
 
         $options = ['config', 'phpunit-bin', 'test-similarity', 'options', 'coverage'];
-
-        foreach ($options as $option) {
-            if ($request->has($option)) {
-                $bin .= " --'{$option}'=" . '"' . $request->get($option) . '"';
-            }
-        }
+        $bin = $request->generateBin($request->getArray($options));
 
         echo "\n";
         echo "Hot\\PHPUnit\\Runner has been started";
@@ -179,7 +171,7 @@ class Runner
     protected function loadSession()
     {
 
-        if (!file_exists($this->session_file)) {
+        if (!$this->hasSession()) {
             $this->saveSession();
         }
 
@@ -462,6 +454,21 @@ class Runner
     protected function isPhp($file)
     {
         return preg_match('/\.php$/', $file);
+    }
+
+    /**
+     * @return bool
+     */
+    protected function hasSession()
+    {
+        return file_exists($this->session_file);
+    }
+
+    protected function removeSession()
+    {
+        if (file_exists($this->session_file)) {
+            unlink($this->session_file);
+        }
     }
 
 }
