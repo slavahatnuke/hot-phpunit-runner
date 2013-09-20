@@ -59,7 +59,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
     {
         $request = new Request(['--name1=n1', '--name2=n2', '--name3=n3']);
         $expected_array = ['name1' => 'n1', 'name3' => 'n3'];
-        $this->assertEquals($expected_array, $request->getArray(['name1', 'name3']));
+        $this->assertEquals($expected_array, $request->getHash(['name1', 'name3']));
     }
 
 

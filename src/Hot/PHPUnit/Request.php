@@ -23,7 +23,7 @@ class Request extends Map
         return $this->bin;
     }
 
-    public function getArray($names)
+    public function getHash($names)
     {
         $result = [];
 

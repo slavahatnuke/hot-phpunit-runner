@@ -128,8 +128,15 @@ class Runner
     public function watch(Request $request)
     {
 
-        $options = ['config', 'phpunit-bin', 'test-similarity', 'options', 'coverage'];
-        $bin = $request->generateBin($request->getArray($options));
+        $allowed_options = [
+            'config',
+            'options',
+            'phpunit-bin',
+            'test-similarity',
+            'coverage'
+        ];
+
+        $bin = $request->generateBin($request->getHash($allowed_options));
 
         echo "\n";
         echo "Hot\\PHPUnit\\Runner has been started";
