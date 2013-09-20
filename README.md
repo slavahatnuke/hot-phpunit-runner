@@ -5,7 +5,7 @@ hot/phpunit-runner
 
 ### Watcher for php classes and tests
 
-`bin/phpunit-hot-runner --config=app/phpunit.xml --watch`
+`bin/hot-phpunit-runner --config=app/phpunit.xml --watch`
 
 * When you change entity `XXXClass` this watcher looking for and run tests for this entity.
 * When you change test for entity `XXXClassTest` this watcher run this test too.
@@ -32,15 +32,15 @@ OK (4 tests, 9 assertions)
 ```
 
 
-**[notice]** If you run `bin/phpunit-hot-runner` without any options then you
+**[notice]** If you run `bin/hot-phpunit-runner` without any options then you
 run all tests (or test for entity) based on `git status` (one time).
 FYI, runner will not run tests next time. ( result is cached for watcher )
 
 
 #### Default running looks like:
 
-* `bin/phpunit-hot-runner --watch`
-* `bin/phpunit-hot-runner --config=app/phpunit.xml --watch`
+* `bin/hot-phpunit-runner --watch`
+* `bin/hot-phpunit-runner --config=app/phpunit.xml --watch`
 
 #### Options
 ```
@@ -62,15 +62,15 @@ FYI, runner will not run tests next time. ( result is cached for watcher )
 
 #### Workflows
 
-1. `bin/phpunit-hot-runner --watch` # default watcher
-2. `bin/phpunit-hot-runner --config=app/phpunit.xml --watch` # with phpunit config file
-3. `bin/phpunit-hot-runner --config=app/phpunit.xml --phpunit-bin=bin/phpunit --watch` # with custom `phpunit`
-4. `bin/phpunit-hot-runner --clean` # clear cache and re-test changeset (when watcher working)
-5. `bin/phpunit-hot-runner --config=app/phpunit.xml --watch --period=1` # with phpunit config hot watcher with `--period=1`
-6. `bin/phpunit-hot-runner --config=app/phpunit.xml --watch &` # with phpunit config file and with `&` (background process)
-7. `bin/phpunit-hot-runner --watch --test-similarity=50` # default watcher with `--test-similarity=50` # watcher can not find my tests. I need to reduce the similarity.
-8. `bin/phpunit-hot-runner --options="-c app/ --testdox" --watch` # watcher with `--options="-c app/ --testdox"` # with custom phpunit options
-9. `bin/phpunit-hot-runner --config=app/ --coverage=project.coverage.xml --watch` # with `--coverage=project.coverage.xml`. shortcut to collect coverage
+1. `bin/hot-phpunit-runner --watch` # default watcher
+2. `bin/hot-phpunit-runner --config=app/phpunit.xml --watch` # with phpunit config file
+3. `bin/hot-phpunit-runner --config=app/phpunit.xml --phpunit-bin=bin/phpunit --watch` # with custom `phpunit`
+4. `bin/hot-phpunit-runner --clean` # clear cache and re-test changeset (when watcher working)
+5. `bin/hot-phpunit-runner --config=app/phpunit.xml --watch --period=1` # with phpunit config hot watcher with `--period=1`
+6. `bin/hot-phpunit-runner --config=app/phpunit.xml --watch &` # with phpunit config file and with `&` (background process)
+7. `bin/hot-phpunit-runner --watch --test-similarity=50` # default watcher with `--test-similarity=50` # watcher can not find my tests. I need to reduce the similarity.
+8. `bin/hot-phpunit-runner --options="-c app/ --testdox" --watch` # watcher with `--options="-c app/ --testdox"` # with custom phpunit options
+9. `bin/hot-phpunit-runner --config=app/ --coverage=project.coverage.xml --watch` # with `--coverage=project.coverage.xml`. shortcut to collect coverage
 
 #### PhpStorm
 
