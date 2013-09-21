@@ -13,8 +13,5 @@
             "Hot": "src/"
         }
     },
-    "require": {
-      "mockery/mockery": "dev-master"
-    },
-    "bin": ["bin/hot-phpunit-runner"]
+    "bin": ["bin/hot-phpunit-runner", "bin/hot-notify"]
 }

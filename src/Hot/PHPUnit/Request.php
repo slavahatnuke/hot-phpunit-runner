@@ -63,7 +63,7 @@ class Request extends Map
         $bin = $this->getBin();
 
         foreach ($options as $option => $value) {
-            $bin .= " --'{$option}'=" . "'" . $value . "'";
+            $bin .= " --{$option}=" . "'" . $value . "'";
         }
 
         return $bin;

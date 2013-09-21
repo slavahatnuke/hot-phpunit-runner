@@ -1,0 +1,3 @@
+#!/usr/bin/env sh
+
+bin/hot-phpunit-runner --config=phpunit.xml --coverage --notify --watch --period=1

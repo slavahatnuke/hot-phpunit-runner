@@ -44,13 +44,16 @@ FYI, runner will not run tests next time. ( result is cached for watcher )
 #### Options
 ```
  --config=app/phpunit.xml # custom phpunit config file
- --options="-c app/ --testdox" # custom phpunit options (alternative for `--config`)
+ --phpunit-options="-c app/ --testdox" # custom phpunit options (alternative for `--config`)
+ --phpunit-bin=bin/phpunit # custom path to phpunit
  --watch # watcher mode
  --period=2 # sec. watcher period
  --clean # this option remove cached result and re-test full
- --phpunit-bin=bin/phpunit # custom path to phpunit
  --test-similarity=100 # percentage of similarity 0..100 (entity vs test)
- --coverage=project.coverage.xml # collect coverage and write Clover xml
+ --coverage=coverage.xml # collect coverage and write Clover xml
+ --on-pass="echo 'pass callback';" # CLI command after pass
+ --on-fail="echo 'fail callback';" # CLI command after fail
+ --notify # notifications # OSX / UBUNTU notifications
 ```
 
 #### Install
@@ -69,7 +72,10 @@ FYI, runner will not run tests next time. ( result is cached for watcher )
 6. `bin/hot-phpunit-runner --config=app/phpunit.xml --watch &` # with phpunit config file and with `&` (background process)
 7. `bin/hot-phpunit-runner --watch --test-similarity=50` # default watcher with `--test-similarity=50` # watcher can not find my tests. I need to reduce the similarity.
 8. `bin/hot-phpunit-runner --options="-c app/ --testdox" --watch` # watcher with `--options="-c app/ --testdox"` # with custom phpunit options
-9. `bin/hot-phpunit-runner --config=app/ --coverage=project.coverage.xml --watch` # with `--coverage=project.coverage.xml`. shortcut to collect coverage
+9. `bin/hot-phpunit-runner --config=app/phpunit.xml --coverage=coverage.xml --watch` # with `--config=app/phpunit.xml --coverage=coverage.xml`. collect coverage just for changes
+10. `bin/hot-phpunit-runner --notify --watch` # OSX / UBUNTU notifications
+
+
 
 #### PhpStorm
 
@@ -86,3 +92,18 @@ plugin: [download](plugin/phpunit_codecoverage_display.jar)
 or
 
 ![PhpStorm highlight](doc/images/coverage_ide_highlight2.png)
+
+
+#### Notifications
+
+`bin/hot-phpunit-runner --notify --watch`
+
+
+![osx notification](doc/images/notify_osx.png)
+
+![ubuntu notification](doc/images/notify_ubuntu.png)
+
+`--notify` has dependents:
+
+* OSX: `terminal-notifier` https://github.com/alloy/terminal-notifier
+* UBUNTU: `notify-send` [man](http://manpages.ubuntu.com/manpages/hardy/man1/notify-send.1.html)

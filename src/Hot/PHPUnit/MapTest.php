@@ -66,4 +66,24 @@ class MapTest extends \PHPUnit_Framework_TestCase {
         $this->assertEquals(1, count($map));
     }
 
+    /**
+     * @test
+     */
+    public function keys()
+    {
+        $map = new Map(['k' => 'v']);
+        $this->assertEquals(['k'], $map->keys());
+    }
+
+    /**
+     * @test
+     */
+    public function delete()
+    {
+        $map = new Map(['k' => 'v']);
+        $this->assertTrue($map->has('k'));
+        $map->delete('k');
+        $this->assertFalse($map->has('k'));
+    }
+
 }

@@ -75,7 +75,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
             'option-2' => 'value-2'
         ]);
 
-        $this->assertEquals("bin/bin --'option-1'='value-1' --'option-2'='value-2'", $bin);
+        $this->assertEquals("bin/bin --option-1='value-1' --option-2='value-2'", $bin);
     }
 
 
