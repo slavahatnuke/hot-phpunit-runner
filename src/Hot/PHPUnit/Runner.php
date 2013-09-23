@@ -135,7 +135,6 @@ class Runner
 
     }
 
-
     protected function beforeRunFiles()
     {
         if ($this->getPhpunit()->isCoverageMode()) {
@@ -167,7 +166,8 @@ class Runner
      */
     protected function runTest($test_file)
     {
-        $this->executed_tests[realpath($test_file)] = 1;
+        if($this->isExecutedTest($test_file))
+            return;
 
         echo "\n";
         echo "\n";
@@ -187,8 +187,7 @@ class Runner
             $this->result = false;
         }
 
-
-        return $is_ok;
+        $this->registerExecutedTest($test_file);
     }
 
     /**
@@ -287,31 +286,11 @@ class Runner
     }
 
     /**
-     * @param string $phpunit_bin
-     */
-    public function setPhpunitBin($phpunit_bin)
-    {
-        if ($phpunit_bin) {
-            $this->phpunit_bin = $phpunit_bin;
-        }
-    }
-
-    /**
      * @param int $test_similarity
      */
     public function setTestSimilarity($test_similarity)
     {
         $this->getTestFinder()->setTestSimilarity($test_similarity);
-    }
-
-    /**
-     * @param mixed $phpunit_options
-     */
-    public function setPhpunitOptions($phpunit_options)
-    {
-        if ($phpunit_options) {
-            $this->phpunit_options = $phpunit_options;
-        }
     }
 
     /**
@@ -384,9 +363,10 @@ class Runner
      */
     protected function getPhpunitFilterFiles()
     {
+
         $filter_files = array_merge(
-            $this->getChangeProvider()->getAllChanges(),
-            $this->getTestFinder()->findTests($this->getChangeProvider()->getAllChanges())
+            $this->getChangeProvider()->getChanges(),
+            $this->getTestFinder()->findTests($this->getChangeProvider()->getChanges())
         );
 
         return array_unique($filter_files);
@@ -402,6 +382,23 @@ class Runner
         }
 
         return $this->phpunit;
+    }
+
+    /**
+     * @param $test_file
+     */
+    protected function registerExecutedTest($test_file)
+    {
+        $this->executed_tests[realpath($test_file)] = 1;
+    }
+
+    /**
+     * @param $test_file
+     * @return bool
+     */
+    protected function isExecutedTest($test_file)
+    {
+        return isset($this->executed_tests[realpath($test_file)]);
     }
 
 
