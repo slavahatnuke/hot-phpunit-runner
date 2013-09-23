@@ -2,7 +2,7 @@
     "name": "hot/phpunit-runner",
     "type": "library",
     "description": "The lib allows to watch phpunit tests",
-    "keywords": ["test", "watcher", "observer", "phpunit", "git", "find", "tests", "realtime", "daemon", "ci"],
+    "keywords": ["test", "watcher", "observer", "phpunit", "git", "find", "tests", "realtime", "daemon", "ci", "hot", "php"],
     "homepage": "https://github.com/slavahatnuke/hot-phpunit-runner",
     "license": "MIT",
     "require": {
