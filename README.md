@@ -81,6 +81,8 @@ FYI, runner will not run tests next time. ( result is cached for watcher )
 
 Highlight coverage in PhpStorm
 
+`bin/hot-phpunit-runner --config=app/phpunit.xml --coverage=coverage.xml --watch` # required `--config=app/phpunit.xml` phpunit config file, in this case runner collect coverage for changes
+
 plugin: [download](plugin/phpunit_codecoverage_display.jar)
 [wiki](https://github.com/oker1/phpunit_codecoverage_display/wiki)
 [home](http://plugins.jetbrains.com/plugin/6167?pr=phpStorm&showAllUpdates=true)
