@@ -57,6 +57,7 @@ class ChangeProviderTest extends \PHPUnit_Framework_TestCase
 
         $provider = $this->newProvider();
 
+
         file_put_contents($file, 1);
 
         $changes = $provider->getChanges();
@@ -65,6 +66,9 @@ class ChangeProviderTest extends \PHPUnit_Framework_TestCase
         $provider->commit();
         $changes = $provider->getChanges();
         $this->assertFalse(in_array($file, $changes));
+
+        $all_changes = $provider->getAllChanges();
+        $this->assertTrue(in_array($file, $all_changes));
     }
 
 
