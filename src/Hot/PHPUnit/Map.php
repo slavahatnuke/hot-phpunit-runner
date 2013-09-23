@@ -28,6 +28,16 @@ class Map implements \IteratorAggregate, \Countable
         return $this->data[$name] = $value;
     }
 
+    public function delete($name)
+    {
+        if($this->has($name))
+            unset($this->data[$name]);
+    }
+
+    public function keys(){
+        return array_keys($this->data);
+    }
+
     public function getIterator()
     {
         return new \ArrayIterator($this->data);

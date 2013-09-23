@@ -1,0 +1,9 @@
+You need to setup command line notifier
+
+  terminal-notifier:
+    OSX
+      https://github.com/alloy/terminal-notifier
+
+  notify-send:
+    UBUNTU
+      http://manpages.ubuntu.com/manpages/hardy/man1/notify-send.1.html
