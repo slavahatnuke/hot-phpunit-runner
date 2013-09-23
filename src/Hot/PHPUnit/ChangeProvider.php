@@ -24,7 +24,7 @@ class ChangeProvider
 
         $result = [];
 
-        $files = array_merge($this->session->keys(), $this->finder->find());
+        $files = array_merge($this->session->keys(), $this->getAllChanges());
 
 
         foreach ($files as $file) {
@@ -40,6 +40,14 @@ class ChangeProvider
 
 
         return array_unique($result);
+    }
+
+    /**
+     * @return array
+     */
+    public function getAllChanges()
+    {
+        return $this->finder->find();
     }
 
     public function reset()
@@ -88,4 +96,5 @@ class ChangeProvider
 
         return false;
     }
+
 }

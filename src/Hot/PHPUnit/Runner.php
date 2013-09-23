@@ -385,9 +385,9 @@ class Runner
     protected function getPhpunitFilterFiles()
     {
         $filter_files = array_merge(
-            $this->getChangeProvider()->getChanges(),
-            $this->getTestFinder()->findTests($this->getChangeProvider()->getChanges()
-        ));
+            $this->getChangeProvider()->getAllChanges(),
+            $this->getTestFinder()->findTests($this->getChangeProvider()->getAllChanges())
+        );
 
         return array_unique($filter_files);
     }
