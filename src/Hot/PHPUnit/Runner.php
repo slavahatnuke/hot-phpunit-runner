@@ -121,13 +121,13 @@ class Runner
     public function run()
     {
 
-        $this->beforeRunFiles();
+        $this->beforeRun();
 
         foreach ($this->getChangeProvider()->getChanges() as $file) {
             $this->runFile($file);
         }
 
-        $this->afterRunFiles();
+        $this->afterRun();
 
         if ($this->hasExecutedTests() && !$this->result) {
             exit(1);
@@ -135,18 +135,14 @@ class Runner
 
     }
 
-    protected function beforeRunFiles()
+    protected function beforeRun()
     {
-        if ($this->getPhpunit()->isCoverageMode()) {
-            $this->getPhpunit()->generateNewConfig($this->getPhpunitFilterFiles());
-        }
+        $this->getPhpunit()->beforeHandle();
     }
 
-    protected function afterRunFiles()
+    protected function afterRun()
     {
-        if ($this->getPhpunit()->isCoverageMode()) {
-            $this->getPhpunit()->removeNewConfig();
-        }
+        $this->getPhpunit()->afterHandle();
 
         $this->save();
 
@@ -166,7 +162,7 @@ class Runner
      */
     protected function runTest($test_file)
     {
-        if($this->isExecutedTest($test_file))
+        if ($this->isExecutedTest($test_file))
             return;
 
         echo "\n";
@@ -359,26 +355,16 @@ class Runner
     }
 
     /**
-     * @return array
-     */
-    protected function getPhpunitFilterFiles()
-    {
-
-        $filter_files = array_merge(
-            $this->getChangeProvider()->getChanges(),
-            $this->getTestFinder()->findTests($this->getChangeProvider()->getChanges())
-        );
-
-        return array_unique($filter_files);
-    }
-
-    /**
      * @return PHPUnit
      */
     protected function getPhpunit()
     {
         if (!$this->phpunit) {
-            $this->phpunit = new PHPUnit($this->request, $this->getProcessor());
+            $this->phpunit = new PHPUnit(
+                $this->request,
+                $this->getProcessor(),
+                new CoverageFileFinder($this->getChangeProvider(), $this->getTestFinder())
+            );
         }
 
         return $this->phpunit;

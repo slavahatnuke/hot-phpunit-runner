@@ -44,7 +44,14 @@ class TestFinder
     protected function isTest($file)
     {
         $file = realpath($file);
-        return $file && preg_match('/\w+test/i', $file);
+
+        if( $file && preg_match('/\w+test/i', $file) && $this->isClass($file))
+        {
+            $content = file_get_contents($file);
+            return !preg_match('/abstract\s+class\s+/i', $content);
+        }
+
+        return false;
     }
 
     /**
