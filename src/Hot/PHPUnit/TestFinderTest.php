@@ -41,7 +41,7 @@ class TestFinderTest extends \PHPUnit_Framework_TestCase {
 
         $file = $this->file_test;
 
-        file_put_contents($file, 1);
+        file_put_contents($file, 'class w1');
 
         $finder = $this->newFinder();
         $tests = $finder->findTests($file);
@@ -61,9 +61,10 @@ class TestFinderTest extends \PHPUnit_Framework_TestCase {
 
         file_put_contents($file, "namespace Hot\PHPUnit; \n class {$class_name} ");
 
-        file_put_contents($file_test, 1);
+        file_put_contents($file_test, 'class someTest');
 
         $finder = $this->newFinder();
+        $finder->setTestSimilarity(20);
         $tests = $finder->findTests($file);
 
         $this->assertEquals(1, count($tests));
@@ -83,7 +84,7 @@ class TestFinderTest extends \PHPUnit_Framework_TestCase {
 
         file_put_contents($file, "namespace Hot\PHPUnit; \n class {$class_name} ");
 
-        file_put_contents($file_test, 1);
+        file_put_contents($file_test, 'class test');
 
         $finder = $this->newFinder();
         $finder->setTestSimilarity(200);
@@ -92,7 +93,7 @@ class TestFinderTest extends \PHPUnit_Framework_TestCase {
 
         $this->assertEquals(0, count($tests));
 
-        $finder->setTestSimilarity(50);
+        $finder->setTestSimilarity(10);
 
         $tests = $finder->findTests($file);
         $this->assertEquals(1, count($tests));
