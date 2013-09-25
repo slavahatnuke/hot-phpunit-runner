@@ -17,17 +17,22 @@ class PHPUnit
      */
     protected $processor;
 
+    /**
+     * @var CoverageFileFinder
+     */
+    protected $coverage_file_finder;
+
     protected $generated_config_file;
 
-    public function __construct(Map $options, ProcessorInterface $processor)
+    public function __construct(Map $options, ProcessorInterface $processor, FinderInterface $coverage_file_finder)
     {
         $this->options = $options;
         $this->processor = $processor;
+        $this->coverage_file_finder = $coverage_file_finder;
     }
 
     public function run($test)
     {
-
         return $this->processor->run($this->generateBin($test));
     }
 
@@ -76,17 +81,18 @@ class PHPUnit
         return $this->options->has('coverage') && $this->options->has('config') && is_file($this->options->get('config'));
     }
 
-    public function generateNewConfig($files)
+
+    public function beforeHandle()
     {
         if ($this->isCoverageMode()) {
             $this->generated_config_file = $this->options->get('config') . '_' . uniqid() . '.xml';
-            $this->buildPhpunitConfigFile($files, $this->generated_config_file);
+            $this->buildPhpunitConfigFile($this->coverage_file_finder->find(), $this->generated_config_file);
             return $this->generated_config_file;
         }
     }
 
 
-    public function removeNewConfig()
+    public function afterHandle()
     {
         if ($this->isCoverageMode()) {
             if ($this->generated_config_file && file_exists($this->generated_config_file)) {
@@ -101,11 +107,11 @@ class PHPUnit
 
         $phpunit_config_file = $this->options->get('config');
 
-        $doc = new \DOMDocument();
+        $phpunit_config = new \DOMDocument();
 
 
-        $doc->load($phpunit_config_file);
-        $filters = $doc->getElementsByTagName('filter');
+        $phpunit_config->load($phpunit_config_file);
+        $filters = $phpunit_config->getElementsByTagName('filter');
 
         $phpunit = null;
         $filter = null;
@@ -116,25 +122,25 @@ class PHPUnit
         }
 
         if (!$filter) {
-            $phpunits = $doc->getElementsByTagName('phpunit');
+            $phpunits = $phpunit_config->getElementsByTagName('phpunit');
             foreach ($phpunits as $phpunit) ;
         }
 
 
         if ($phpunit) {
 
-            $new_filter = $doc->createElement('filter');
-            $wl = $doc->createElement('whitelist');
+            $new_filter = $phpunit_config->createElement('filter');
+            $wl = $phpunit_config->createElement('whitelist');
             $new_filter->appendChild($wl);
 
             foreach ($files as $x_file) {
-                $wl->appendChild($doc->createElement('file', $x_file));
+                $wl->appendChild($phpunit_config->createElement('file', $x_file));
             }
 
             $phpunit->appendChild($new_filter);
         }
 
-        $doc->save($result_file);
+        $phpunit_config->save($result_file);
 
     }
 }

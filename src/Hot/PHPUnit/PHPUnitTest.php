@@ -8,9 +8,12 @@ class PHPUnitTest extends \PHPUnit_Framework_TestCase {
     
     protected $processor;
     
+    protected $coverage_file_finder;
+
     protected function setUp()
     {
-        $this->processor = $this->getMock('Hot\PHPUnit\Processor', array('run'));
+        $this->processor = $this->getMock('Hot\PHPUnit\Processor', ['run']);
+        $this->coverage_file_finder = $this->getMock('Hot\PHPUnit\CoverageFileFinder', ['find'], [], '', false);
     }
 
     /**
@@ -41,6 +44,7 @@ class PHPUnitTest extends \PHPUnit_Framework_TestCase {
      */
     public function shouldRunTestWithConfig()
     {
+
         $phpunit = $this->newPhpunit(['config' => 'custom.config.xml']);
         $this->assertSame('phpunit -c custom.config.xml xTest.php', $phpunit->generateBin('xTest.php'));
     }
@@ -95,15 +99,22 @@ class PHPUnitTest extends \PHPUnit_Framework_TestCase {
      */
     public function workWithNewConfigFile()
     {
+        $this->coverage_file_finder->expects($this->once())
+            ->method('find')
+            ->will($this->returnValue(['file_xxx_file']));
+
+
         $phpunit = $this->newPhpunit(['config' => __DIR__ . '/Fixtures/PHPUnit/phpunit.xml', 'coverage' => 1]);
-        $new_config = $phpunit->generateNewConfig(['file_xxx_file']);
+
+
+        $new_config = $phpunit->beforeHandle();
 
         $this->assertTrue($phpunit->isCoverageMode());
         
         $this->assertFileExists($new_config);
         $this->assertContains('<filter><whitelist><file>file_xxx_file</file></whitelist></filter>', file_get_contents($new_config));
 
-        $phpunit->removeNewConfig();
+        $phpunit->afterHandle();
         $this->assertFileNotExists($new_config);
 
     }
@@ -115,7 +126,7 @@ class PHPUnitTest extends \PHPUnit_Framework_TestCase {
      */
     protected function newPhpunit($options = [])
     {
-        return new PHPUnit(new Map($options), $this->processor);
+        return new PHPUnit(new Map($options), $this->processor, $this->coverage_file_finder);
     }
 
 
