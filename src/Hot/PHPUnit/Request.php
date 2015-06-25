@@ -20,7 +20,10 @@ class Request extends Map
      */
     public function getBin()
     {
-        return $this->bin;
+	    if(strtoupper(substr(PHP_OS, 0, 3)) === 'WIN')
+		    return PHP_BINARY . ' ' . $this->bin;
+	    else
+            return $this->bin;
     }
 
     public function getHash($names)
